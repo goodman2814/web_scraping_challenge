@@ -3,16 +3,14 @@
 
 #import dependencies
 
-from bs4 import BeautifulSoup as bs
-import requests
+import pandas as pd
 import pymongo
+import requests
+from bs4 import BeautifulSoup as bs
+from flask import Flask, redirect, render_template
+from flask_pymongo import PyMongo
 from splinter import Browser
 from webdriver_manager.chrome import ChromeDriverManager
-from flask import Flask, render_template, redirect
-from flask_pymongo import PyMongo
-import pandas as pd
-
-
 
 # Initialize PyMongo to work with MongoDBs
 conn = 'mongodb://localhost:27017'
@@ -189,8 +187,5 @@ def scrape():
         {"title": "Schiaparelli Hemisphere", "img_url": full_schiaparelli},
         {"title": "Syrtis Major Hemisphere", "img_url": full_syrtis}
     ]
-
-
-
 
 
