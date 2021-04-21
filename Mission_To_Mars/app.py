@@ -1,6 +1,6 @@
 # Dependencies
-from flask import Flask, render_template, redirect
-from flask_pymongo import PyMongo
+from Flask import Flask, render_template, redirect
+from Flask_pymongo import PyMongo
 import scrape_mars
 
 # Create an instance of Flask
