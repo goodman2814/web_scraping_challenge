@@ -12,21 +12,16 @@ from flask_pymongo import PyMongo
 from splinter import Browser
 from webdriver_manager.chrome import ChromeDriverManager
 
-# Initialize PyMongo to work with MongoDBs
-conn = 'mongodb://localhost:27017'
-client = pymongo.MongoClient(conn)
+
+def init_browser():
+    executable_path = {'executable_path': ChromeDriverManager().install()}
+    return Browser('chrome', **executable_path, headless=False)
 
 def scrape():
-# Step 1 - Scraping
+    browser=init_browser()
+    mars_dict={}
 
 # ### NASA Mars News
-# Scrape the Mars News Site and collect the latest News Title and Paragraph Text. Assign the text to variables that you can reference later.
-
-
-# Setup splinter
-    executable_path = {'executable_path': ChromeDriverManager().install()}
-    browser = Browser('chrome', **executable_path, headless=False)
-
 # URLs of pages to be scraped
     url = 'https://redplanetscience.com/'
 
@@ -41,13 +36,8 @@ def scrape():
     news_p = soup.find_all('div', class_='article_teaser_body')[0].text
 
 
+########################################
 # ### Featured Image
-# Visit the url for the Featured Space Image.
-# Use splinter to navigate the site and find the image url for the current Featured Mars Image and assign the url string to a variable called `featured_image_url`.
-# Make sure to find the image url to the full size `.jpg` image.
-# Make sure to save a complete url string for this image.
-
-
 
 #Set up splinter path for image
     img_url = 'https://spaceimages-mars.com'
@@ -67,7 +57,7 @@ def scrape():
     full_url = img_url+'/'+src['src']
 
 
-
+########################################
 # ### Mars Facts 
 # Visit the Mars Facts webpage and use Pandas to scrape the table containing facts about the planet including Diameter, Mass, etc.
 # Use Pandas to convert the data to a HTML table string.
@@ -77,20 +67,16 @@ def scrape():
 
     tables = pd.read_html(facts_url)
 
-# separate each table to a df and turn into HTML script
-    df=pd.DataFrame(tables[0])
-
-    df2=pd.DataFrame(tables[1])
+# separate tables and pull relevant table to make a df and turn into HTML script
+    df=pd.DataFrame(tables[1])
+    df=df.rename(columns={0:"Planet",1:"Values"},errors="raise")
 
     html_facts=df.to_html()
 
-    html_facts2=df2.to_html()
 
-
-
+######################################
 # Mars Hemispheres
 # Visit the astrogeology site to obtain high resolution images for each of Mar's hemispheres.
-
 
 # set image url
     hemi_url = 'https://marshemispheres.com/'
@@ -138,8 +124,6 @@ def scrape():
 
     full_schiaparelli = hemi_url+schiaparelli['src']
 
-
-
 # ### Find Syrtis Hemisphere Image URL
 ################################################
 
@@ -157,8 +141,6 @@ def scrape():
     syrtis = syrtis_soup.find('img', class_='wide-image')
 
     full_syrtis = hemi_url+syrtis['src']
-
-
 
 # ### Find Valles Hemisphere Image URL
 ################################################
@@ -179,8 +161,8 @@ def scrape():
     full_valles = hemi_url+valles['src']
 
 
-
-# ## Hemisphere Dictionary
+####################################
+# Hemisphere Dictionary
     hemisphere_image_urls = [
         {"title": "Valles Marineris Hemisphere", "img_url": full_valles},
         {"title": "Cerberus Hemisphere", "img_url": full_cerberus},
@@ -188,4 +170,16 @@ def scrape():
         {"title": "Syrtis Major Hemisphere", "img_url": full_syrtis}
     ]
 
+####################################
+# Create dictionary for all info scraped from sources above
+    mars_dict={
+        "news_title":news_title,
+        "news_p":news_p,
+        "featured_image_url":full_url,
+        "fact_table":html_facts,
+        "hemisphere_images":hemisphere_image_urls
+    }
+
+    browser.quit()
+    return mars_dict
 
